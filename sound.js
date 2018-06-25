@@ -21,7 +21,7 @@ function djb2Code(str) {
   return hash;
 }
 
-function Sound(filename, basePath, onError, options) {
+function Sound(filename, basePath, onError, options, onPlayChanged) {
   var asset = resolveAssetSource(filename);
   if (asset) {
     this._filename = asset.uri;
@@ -52,6 +52,7 @@ function Sound(filename, basePath, onError, options) {
             else {
               this._playing = false;
             }
+            onPlayChanged && onPlayChanged(this._playing);
           }
         },
       );

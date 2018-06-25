@@ -46,8 +46,10 @@ declare class Sound {
    * @param filename Either absolute or relative path to the sound file
    * @param basePath Optional base path of the file. Omit this or pass '' if filename is an absolute path. Otherwise, you may use one of the predefined directories: Sound.MAIN_BUNDLE, Sound.DOCUMENT, Sound.LIBRARY, Sound.CACHES.
    * @param callback Optional callback function called when load ends in either success or error. In the event of success, error is undefined.
+   * @param options Optional map of options. Can contain 'loadSync' to load synchronously, defaults to async.
+   * @param onPlayChanged Optional callback function called when the _playing state changes.
    */
-  constructor(filename: string, basePath: string, callback: (error: any) => void)
+  constructor(filename: string, basePath: string, callback: (error: any) => void, options?: Map<string, any>, onPlayChanged?: (isPlaying: boolean) => void)
 
   /**
    * Return true if the sound has been loaded.
