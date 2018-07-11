@@ -140,6 +140,18 @@ declare class Sound {
   getCurrentTime(cb?: (seconds: number, isPlaying: boolean) => void): void
 
   /**
+   * Sets a listener that will be constantly listening for playback position events.
+   * @param cb callback to be invoked when a new position value is received
+   * @param tick the minimum time between position events
+   */
+  setCurrentTimeListener(cb: (seconds: number, isPlaying: boolean) => void, tick?: number): void
+
+  /**
+   * Clears any stored current time listener
+   */
+  clearCurrentTimeListener(): void
+
+  /**
    * Seek to a particular playback point in seconds.
    * @param value
    */

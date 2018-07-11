@@ -53,9 +53,37 @@ function Sound(filename, basePath, onError, options, onPlayChanged) {
               this._playing = false;
             }
             onPlayChanged && onPlayChanged(this._playing);
+
+            // update state of CurrentTime listener
+            if (this._currentTimeListener) {
+              if (this._playing) {
+                // if already have an interval stop old one
+                if (this._interval) {
+                  this.stopCurrentTimeInterval();
+                }
+                this.startCurrentTimeInterval();
+              } else {
+                this.stopCurrentTimeInterval();
+              }
+            }
           }
         },
       );
+    }
+  }
+
+  this.startCurrentTimeInterval = function () {
+    if (this._currentTimeListener) {
+      this._interval = setInterval(() => {
+        RNSound.getCurrentTime(this._key, this._currentTimeListener);
+      }, this._tick);
+    }
+  }
+
+  this.stopCurrentTimeInterval = function () {
+    if (this._interval) {
+      clearInterval(this._interval);
+      this._interval = undefined;
     }
   }
 
@@ -68,6 +96,10 @@ function Sound(filename, basePath, onError, options, onPlayChanged) {
   this._pan = 0;
   this._numberOfLoops = 0;
   this._speed = 1;
+  this._interval = undefined;
+  this._currentTimeListener = undefined;
+  this._tick = 1000;
+
   RNSound.prepare(this._filename, this._key, options || {}, (error, props) => {
     if (props) {
       if (typeof props.duration === 'number') {
@@ -102,6 +134,7 @@ Sound.prototype.pause = function(callback) {
   if (this._loaded) {
     RNSound.pause(this._key, () => {
       this._playing = false;
+      this.stopCurrentTimeInterval();
       callback && callback();
     });
   }
@@ -112,6 +145,7 @@ Sound.prototype.stop = function(callback) {
   if (this._loaded) {
     RNSound.stop(this._key, () => {
       this._playing = false;
+      this.stopCurrentTimeInterval();
       callback && callback();
     });
   }
@@ -122,6 +156,7 @@ Sound.prototype.reset = function() {
   if (this._loaded && IsAndroid) {
     RNSound.reset(this._key);
     this._playing = false;
+    this.stopCurrentTimeInterval();
   }
   return this;
 };
@@ -218,6 +253,34 @@ Sound.prototype.setSpeed = function(value) {
 Sound.prototype.getCurrentTime = function(callback) {
   if (this._loaded) {
     RNSound.getCurrentTime(this._key, callback);
+  }
+};
+
+Sound.prototype.setCurrentTimeListener = function (callback, tick) {
+  // if already an interval set then stop it
+  this.stopCurrentTimeInterval();
+
+  // store listener and tick length
+  this._currentTimeListener = callback;
+  if (tick === undefined) {
+    tick = 1000; // default to 1 second
+  }
+  this._tick = tick;
+
+  // only start interval if already playing (because we will not get a isPlaying event to set initial state of listener)
+  if (this._loaded && this._isPlaying) {
+    this.startCurrentTimeInterval();
+  }
+};
+
+Sound.prototype.clearCurrentTimeListener = function () {
+  if (this._loaded) {
+    // if already an interval set then stop it
+    this.stopCurrentTimeInterval();
+
+    // clear fields
+    this._interval = undefined;
+    this._currentTimeListener = undefined;
   }
 };
 
