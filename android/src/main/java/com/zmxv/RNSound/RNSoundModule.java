@@ -279,8 +279,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   @ReactMethod
   public void stop(final Double key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
-    if (player != null && player.isPlaying()) {
-      player.pause();
+    if (player != null) {
+      if (player.isPlaying()) {
+        player.pause();
+      }
       player.seekTo(0);
     }
 
