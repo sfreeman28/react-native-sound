@@ -74,6 +74,9 @@ function Sound(filename, basePath, onError, options, onPlayChanged) {
 
   this.startCurrentTimeInterval = function () {
     if (this._currentTimeListener) {
+      // call once first so returns first value before waiting for first tick
+      RNSound.getCurrentTime(this._key, this._currentTimeListener);
+      // then start interval
       this._interval = setInterval(() => {
         RNSound.getCurrentTime(this._key, this._currentTimeListener);
       }, this._tick);
